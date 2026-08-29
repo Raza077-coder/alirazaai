@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ali Raza AI — Hand + Voice PC Controller</title>
+<meta name="description" content="Control your Windows PC with hand gestures and voice commands using your iPhone camera. Real, local, low-latency. Built by Ali Raza." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#05070d; --bg2:#0a0f1c; --panel:#0d1322; --panel2:#111a2e;
+    --line:rgba(120,160,255,.14); --ink:#e8eefc; --muted:#8b98b8;
+    --accent:#4f8cff; --accent2:#7c5cff; --cyan:#2dd4bf; --green:#34d399;
+    --amber:#fbbf24; --red:#f87171;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--ink);font-family:'Inter',system-ui,sans-serif;line-height:1.6;overflow-x:hidden}
+  h1,h2,h3,h4{font-family:'Space Grotesk',sans-serif;letter-spacing:-.02em}
+  a{color:var(--accent);text-decoration:none}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+  .glow{position:fixed;inset:0;z-index:-1;background:
+    radial-gradient(600px 400px at 15% -5%,rgba(79,140,255,.16),transparent 60%),
+    radial-gradient(700px 500px at 90% 10%,rgba(124,92,255,.14),transparent 60%),
+    radial-gradient(500px 400px at 50% 110%,rgba(45,212,191,.08),transparent 60%);}
+  nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:rgba(5,7,13,.72);border-bottom:1px solid var(--line)}
+  .nav-in{max-width:1180px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;justify-content:space-between}
+  .brand{display:flex;align-items:center;gap:10px;font-family:'Space Grotesk';font-weight:700;font-size:18px}
+  .brand .dot{width:10px;height:10px;border-radius:50%;background:var(--cyan);box-shadow:0 0 12px var(--cyan)}
+  .nav-links{display:flex;gap:26px;font-size:14px;color:var(--muted)}
+  .nav-links a:hover{color:var(--ink)}
+  .nav-cta{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;padding:9px 18px;border-radius:10px;font-weight:600;font-size:14px}
+  .nav-cta:hover{filter:brightness(1.1)}
+  @media(max-width:760px){.nav-links{display:none}}
+  header{padding:90px 0 60px;text-align:center;position:relative}
+  .pill{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--panel);padding:7px 16px;border-radius:999px;font-size:13px;color:var(--muted);margin-bottom:26px}
+  .pill .live{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green);animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+  h1{font-size:clamp(38px,6vw,66px);line-height:1.05;font-weight:700}
+  h1 .grad{background:linear-gradient(90deg,var(--accent),var(--cyan));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .hero-sub{max-width:680px;margin:22px auto 0;color:var(--muted);font-size:18px}
+  .hero-sub b{color:var(--ink)}
+  .hero-btns{display:flex;gap:14px;justify-content:center;margin-top:34px;flex-wrap:wrap}
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:13px 26px;border-radius:12px;font-weight:600;font-size:15px;border:1px solid var(--line)}
+  .btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none}
+  .btn-primary:hover{filter:brightness(1.1)}
+  .btn-ghost{background:var(--panel);color:var(--ink)}
+  .btn-ghost:hover{border-color:var(--accent)}
+  .hero-stats{display:flex;gap:40px;justify-content:center;margin-top:52px;flex-wrap:wrap}
+  .stat{text-align:center}
+  .stat b{display:block;font-family:'Space Grotesk';font-size:30px;color:var(--ink)}
+  .stat span{font-size:13px;color:var(--muted)}
+  section{padding:70px 0}
+  .sec-head{text-align:center;max-width:640px;margin:0 auto 48px}
+  .sec-head .tag{color:var(--accent);font-size:13px;font-weight:600;letter-spacing:.12em;text-transform:uppercase}
+  .sec-head h2{font-size:clamp(28px,4vw,40px);margin-top:10px}
+  .sec-head p{color:var(--muted);margin-top:12px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
+  .card{background:linear-gradient(180deg,var(--panel),var(--bg2));border:1px solid var(--line);border-radius:18px;padding:26px;transition:.25s}
+  .card:hover{transform:translateY(-4px);border-color:rgba(120,160,255,.35)}
+  .card .ic{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:16px;background:rgba(79,140,255,.12);border:1px solid var(--line)}
+  .card h4{font-size:19px;margin-bottom:8px}
+  .card p{color:var(--muted);font-size:14.5px}
+  .arch{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:30px;overflow-x:auto}
+  .arch pre{font-family:'Space Grotesk',monospace;font-size:13.5px;color:var(--muted);line-height:1.7}
+  .arch pre .c{color:var(--cyan)} .arch pre .m{color:var(--accent)} .arch pre .d{color:var(--muted)}
+  .flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-top:10px}
+  .flow-step{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;text-align:center}
+  .flow-step .n{width:30px;height:30px;margin:0 auto 10px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px}
+  .flow-step b{display:block;font-size:14px;margin-bottom:4px}
+  .flow-step span{font-size:12.5px;color:var(--muted)}
+  .install{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}
+  .step-card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px}
+  .step-card h4{display:flex;align-items:center;gap:10px;font-size:16px;margin-bottom:12px}
+  .step-card h4 .num{width:26px;height:26px;border-radius:8px;background:rgba(79,140,255,.15);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:13px}
+  .step-card pre{display:block;background:var(--bg2);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:13px;color:var(--cyan);margin:8px 0;overflow-x:auto;font-family:'Space Grotesk',monospace}
+  .step-card code{background:var(--bg2);border:1px solid var(--line);border-radius:6px;padding:2px 6px;font-size:12.5px;color:var(--cyan)}
+  .step-card p{color:var(--muted);font-size:13.5px}
+  .safety{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}
+  .safe{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px;border-left:3px solid var(--green)}
+  .safe.warn{border-left-color:var(--amber)}
+  .safe.danger{border-left-color:var(--red)}
+  .safe h4{font-size:16px;margin-bottom:8px}
+  .safe p{color:var(--muted);font-size:13.5px}
+  footer{border-top:1px solid var(--line);padding:40px 0;text-align:center;color:var(--muted);font-size:13.5px}
+  footer .brand{justify-content:center;margin-bottom:10px;color:var(--ink)}
+  footer a{color:var(--accent)}
+  .note{background:rgba(45,212,191,.08);border:1px solid rgba(45,212,191,.25);border-radius:12px;padding:14px 18px;font-size:14px;color:var(--cyan);margin-top:26px;text-align:left}
+  .note b{color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="glow"></div>
+
+<nav>
+  <div class="nav-in">
+    <div class="brand"><span class="dot"></span> Ali Raza AI</div>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#architecture">Architecture</a>
+      <a href="#install">Install</a>
+      <a href="#safety">Safety</a>
+    </div>
+    <a class="nav-cta" href="#install">Get Started</a>
+  </div>
+</nav>
+
+<header>
+  <div class="wrap">
+    <div class="pill"><span class="live"></span> Windows Desktop App · Runs 100% Locally</div>
+    <h1>Control Your PC with <span class="grad">Hand Gestures</span> &amp; <span class="grad">Voice</span></h1>
+    <p class="hero-sub">A real Windows application that turns your <b>iPhone camera</b> and <b>microphone</b> into a full hands-free controller — hand tracking, gesture recognition, punch detection, and voice commands in English + Roman Urdu. Built by <b>Ali Raza</b>.</p>
+    <div class="hero-btns">
+      <a class="btn btn-primary" href="#install">⬇ Download &amp; Install</a>
+      <a class="btn btn-ghost" href="#features">Explore Features</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><b>Local</b><span>No cloud, no uploads</span></div>
+      <div class="stat"><b>2 Modes</b><span>Desktop + Gaming</span></div>
+      <div class="stat"><b>2 Inputs</b><span>Hands + Voice</span></div>
+      <div class="stat"><b>1 Stop</b><span>Emergency kill switch</span></div>
+    </div>
+  </div>
+</header>
+
+<section id="features">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="tag">Features</div>
+      <h2>Everything you need to go hands-free</h2>
+      <p>Every component is real and functional — no mockups, no fake success messages.</p>
+    </div>
+    <div class="grid">
+      <div class="card"><div class="ic">📱</div><h4>iPhone Camera</h4><p>Use your iPhone as the main camera — clearer than a laptop webcam. Connects over Wi-Fi or USB via IP Webcam / DroidCam / USB UVC. Auto-detect, low latency, OpenCV-compatible.</p></div>
+      <div class="card"><div class="ic">✋</div><h4>Hand Tracking</h4><p>Real-time 21-landmark hand tracking. Detects left/right hand, fingers, palm, wrist, position, movement, direction and speed. Optional landmark overlay.</p></div>
+      <div class="card"><div class="ic">🖱️</div><h4>Gesture Control</h4><p>Move index finger → move cursor. Pinch → left click. Pinch+hold → drag. Two-finger → right click. Open palm → stop. Swipes → scroll &amp; navigation. Fully configurable.</p></div>
+      <div class="card"><div class="ic">🎙️</div><h4>Voice Control</h4><p>English + Roman Urdu. "Chrome kholo", "Volume barhao", "Computer lock karo", "Screenshot lo", "Search YouTube for…", "Type…" and more. Executed safely.</p></div>
+      <div class="card"><div class="ic">🎮</div><h4>Gaming Mode</h4><p>Fighting-game ready (e.g. Tekken). Editable Gesture → Keyboard mapping: Right Punch → J, Left Punch → K, Block → hold L, hand direction → move. No hard-coded controls.</p></div>
+      <div class="card"><div class="ic">🥊</div><h4>Punch Detection</h4><p>A proper temporal detector: rapid forward movement + fist shape change + speed over a configurable threshold = PUNCH. Detects direction, speed, hand, start &amp; impact. Adjustable sensitivity.</p></div>
+      <div class="card"><div class="ic">🧠</div><h4>Voice + Gesture Combo</h4><p>Point at a window and say "Isay open karo". Use a hand gesture for the mouse and say "Click karo". Both inputs combine contextually in real time.</p></div>
+      <div class="card"><div class="ic">🛡️</div><h4>Safety First</h4><p>ENABLE/DISABLE controller button. Emergency stop shortcut <b>Ctrl+Alt+X</b>. Dangerous actions (shutdown/restart) require voice confirmation.</p></div>
+      <div class="card"><div class="ic">⚙️</div><h4>Full Settings</h4><p>Camera source, resolution, FPS, sensitivities, voice language, microphone, keyboard/mouse mappings, gesture mappings, gaming mode. Saved locally in settings.json.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="architecture" style="background:var(--bg2);border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="tag">Architecture</div>
+      <h2>Clean, modular, real</h2>
+      <p>Each module is a real, working component. All processing is local — no camera or video data ever leaves your PC.</p>
+    </div>
+    <div class="flow">
+      <div class="flow-step"><div class="n">1</div><b>iPhone Camera</b><span>Wi-Fi / USB stream</span></div>
+      <div class="flow-step"><div class="n">2</div><b>Hand Tracking</b><span>21 landmarks</span></div>
+      <div class="flow-step"><div class="n">3</div><b>Gesture / Punch</b><span>Recognition</span></div>
+      <div class="flow-step"><div class="n">4</div><b>PC Action</b><span>Mouse / keys / apps</span></div>
+      <div class="flow-step"><div class="n">+</div><b>Microphone</b><span>Voice → command</span></div>
+    </div>
+    <div class="arch" style="margin-top:26px">
+<pre><span class="c">project/</span>
+├── <span class="m">main.py</span>                      <span class="d"># Orchestrator: safety, emergency stop, main loop</span>
+├── <span class="m">requirements.txt</span>
+├── <span class="m">README.md</span>
+├── <span class="c">camera/</span>
+│   └── <span class="m">iphone_camera.py</span>         <span class="d"># iPhone via IP Webcam / DroidCam / USB UVC</span>
+├── <span class="c">vision/</span>
+│   ├── <span class="m">hand_tracker.py</span>          <span class="d"># MediaPipe hand tracking (21 landmarks, L/R)</span>
+│   ├── <span class="m">gesture_detector.py</span>      <span class="d"># Configurable gesture recognition</span>
+│   └── <span class="m">punch_detector.py</span>        <span class="d"># Temporal punch detection (speed + fist shape)</span>
+├── <span class="c">voice/</span>
+│   ├── <span class="m">speech_recognition.py</span>    <span class="d"># English + Urdu (SpeechRecognition)</span>
+│   └── <span class="m">command_processor.py</span>     <span class="d"># Command parsing + execution</span>
+├── <span class="c">control/</span>
+│   ├── <span class="m">mouse_controller.py</span>      <span class="d"># pyautogui mouse with smoothing</span>
+│   ├── <span class="m">keyboard_controller.py</span>   <span class="d"># pynput keyboard</span>
+│   └── <span class="m">pc_controller.py</span>         <span class="d"># Apps, volume, screenshot, lock, shutdown</span>
+├── <span class="c">gaming/</span>
+│   └── <span class="m">game_controller.py</span>       <span class="d"># Editable gesture→key mapping (Tekken etc.)</span>
+├── <span class="c">config/</span>
+│   ├── <span class="m">settings.json</span>            <span class="d"># All settings (persist across restarts)</span>
+│   └── <span class="m">settings_manager.py</span>      <span class="d"># Load/save settings</span>
+└── <span class="c">ui/</span>
+    └── <span class="m">dashboard.py</span>             <span class="d"># Desktop dashboard (Tkinter)</span></pre>
+    </div>
+  </div>
+</section>
+
+<section id="install">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="tag">Installation</div>
+      <h2>Get it running in minutes</h2>
+      <p>This is a Windows desktop application — it runs locally on your PC, not in a browser.</p>
+    </div>
+    <div class="install">
+      <div class="step-card">
+        <h4><span class="num">1</span> Install Python 3.9+</h4>
+        <p>Download from python.org and check <b>"Add Python to PATH"</b> during install.</p>
+      </div>
+      <div class="step-card">
+        <h4><span class="num">2</span> Install dependencies</h4>
+        <pre>cd project
+pip install -r requirements.txt</pre>
+        <p>If PyAudio fails on Windows: <code>pip install pipwin && pipwin install pyaudio</code></p>
+      </div>
+      <div class="step-card">
+        <h4><span class="num">3</span> Connect your iPhone</h4>
+        <p>Install <b>IP Webcam</b> or <b>DroidCam</b> on your iPhone, start the stream, and set the URL in Settings. USB UVC also supported.</p>
+      </div>
+      <div class="step-card">
+        <h4><span class="num">4</span> Run it</h4>
+        <pre>python main.py
+# or the dashboard:
+python ui/dashboard.py</pre>
+        <p>First-time calibration is guided in the app.</p>
+      </div>
+    </div>
+    <div class="note"><b>Note:</b> This is a <b>Windows desktop application</b> (Python). It cannot run in a browser. The microphone and iPhone camera must be present on your local machine. All processing is local — nothing is uploaded.</div>
+  </div>
+</section>
+
+<section id="safety" style="background:var(--bg2);border-top:1px solid var(--line)">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="tag">Safety &amp; Security</div>
+      <h2>You stay in control, always</h2>
+    </div>
+    <div class="safety">
+      <div class="safe"><h4>🛑 Emergency Stop</h4><p>Press <b>Ctrl+Alt+X</b> at any time to instantly disable all automated control — mouse, keyboard, and PC commands.</p></div>
+      <div class="safe"><h4>🔘 Enable / Disable</h4><p>A clear ENABLE/DISABLE CONTROLLER button. When disabled, nothing is automated.</p></div>
+      <div class="safe warn"><h4>⚠️ Confirmation Required</h4><p>Shutdown and restart require voice confirmation. "Computer shutdown karo" → "Are you sure?" → "Yes" → execute.</p></div>
+      <div class="safe danger"><h4>🔒 Privacy</h4><p>All processing is local. Camera and video data are never sent to external servers. No credentials are stored or exposed.</p></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="brand"><span class="dot"></span> Ali Raza AI</div>
+    <p>Hand + Voice PC Controller · Built by <a href="https://github.com/Raza077-coder">Ali Raza</a></p>
+    <p style="margin-top:6px;font-size:12.5px">Open source · Runs 100% locally on Windows · No cloud, no uploads</p>
+  </div>
+</footer>
+</body>
+</html>
